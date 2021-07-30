@@ -41,6 +41,7 @@ def Perguntas():
         if variavel != 'j':
             resultado['energia_atrativa'] = ObterConstante('Energia Atrativa')
         
+        
     else:
         constante = ObterValorFixo()
         resultado['constante'] = constante
@@ -54,7 +55,10 @@ def Perguntas():
             resultado['intervalo_numero'] = ObterIntervalo('Número')
         if constante != 'j':
             resultado['intervalo_energia_atrativa'] = ObterIntervalo('Energia Atrativa')
-            
+    
+        resultado['aleatoridade'] = ObterAleatoridade()
+    
+    
     resultado['display'] = ObterEstiloDisplay()
         
     return resultado
@@ -104,14 +108,19 @@ def ObterTipoPrint():
     LimparTerminal(printar=False)
     return tipo_plot
 
-
 @DecoradorLembrete
-def ObterVariavel():
+def ObterAleatoridade():
     while (True):
         try:
-            variavel = input('Qual será a variável que pretende por em análise? (T, n, J)\n\n=> ').lower()
+            aleatoridade = input('Gostaria de incluir aleatoridade? (s,n)\n\n=> ').lower()
             
-            if variavel in ['t', 'n', 'j']:
+            if aleatoridade in ['s', 'n']:
+                if aleatoridade == 's':
+                    valor = input('Qual é a constante de proporcionalidade para aleatoridade? (default 1 por exemplo)\n\n=> ')
+                    try:
+                        valor = int(valor)
+                    except:
+                        valor = 1
                 break
             raise
             
@@ -119,7 +128,26 @@ def ObterVariavel():
             DesligarPrograma()
         except:
             LimparTerminal()
-            PrintAviso('Para Graficos 2D é necessário definir uma variável. Podendo ser Temperatura(T), Número(n) ou Energia Atrativa(J)...\n')
+            PrintAviso('Por favor escreva s ou n!\n')
+    
+    LimparTerminal(printar=False)
+    return {aleatoridade: aleatoridade, valor: valor}
+
+@DecoradorLembrete
+def ObterVariavel():
+    while (True):
+        try:
+            variavel = input('Qual será a variável que pretende por em análise? (T, n, J, a)\n\n=> ').lower()
+            
+            if variavel in ['t', 'n', 'j', 'a']:
+                break
+            raise
+            
+        except KeyboardInterrupt:
+            DesligarPrograma()
+        except:
+            LimparTerminal()
+            PrintAviso('Para Graficos 2D é necessário definir uma variável. Podendo ser Temperatura(T), Número(n), Energia Atrativa(J), Aleatoria(a)...\n')
     
     LimparTerminal(printar=False)
     return variavel
@@ -147,7 +175,7 @@ def ObterValorFixo():
 @DecoradorLembrete
 def ObterIntervalo(variavel):
     
-    nome_variavel = 'Temperatura' if variavel == 't' else ('Número' if variavel == 'n' else ('Energia Atrativa' if variavel == 'j' else variavel))
+    nome_variavel = 'Temperatura' if variavel == 't' else ('Número' if variavel == 'n' else ('Energia Atrativa' if variavel == 'j' else 'Aleatoriedade'))
     
     while (True):
         try:

@@ -4,6 +4,7 @@ from numpy import tanh
 from numba import njit, jit, vectorize
 from numpy.lib.type_check import nan_to_num
 import scipy.linalg as linalg
+from random import random
 
 
 # PRECISÃO E DADOS INICIAIS
@@ -19,9 +20,10 @@ D_0 = 0.5
 relax_occ = 0.5
 relax_delt = 0.5
 
+
 # Da pra simplificar muito o codigo, maioria das funções são leves modificações entre si
 
-def obter_dado_T_e_J(Numeros, Temp, J, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M):
+def obter_dado_T_e_J(Numeros, Temp, J, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M, aleatoriedade, v):
   
   t0 = tempo()  
 
@@ -30,7 +32,7 @@ def obter_dado_T_e_J(Numeros, Temp, J, n, D, Potencial_Quimico, B, K, Delta, Dim
   list_mu = []
   
   for num in Numeros:
-    res = obter_dado_T_e_N([J], Temp, num, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M)
+    res = obter_dado_T_e_N([J], Temp, num, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M, aleatoriedade, v)
     list_d.append(res['deltas'][0])
     list_n.append(res['numeros'][0])
     list_mu.append(res['energia_quimica'][0])
@@ -43,7 +45,7 @@ def obter_dado_T_e_J(Numeros, Temp, J, n, D, Potencial_Quimico, B, K, Delta, Dim
   }
 
 
-def obter_dado_J_e_N(Temperaturas, n_med_esp, J, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M):
+def obter_dado_J_e_N(Temperaturas, n_med_esp, J, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M, aleatoriedade, v):
   t0 = tempo()  
 
   list_d = []
@@ -51,7 +53,7 @@ def obter_dado_J_e_N(Temperaturas, n_med_esp, J, n, D, Potencial_Quimico, B, K, 
   list_mu = []
   
   for Temp in Temperaturas:
-    res = obter_dado_T_e_N([J], Temp, n_med_esp, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M)
+    res = obter_dado_T_e_N([J], Temp, n_med_esp, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M, aleatoriedade, v)
     list_d.append(res['deltas'][0])
     list_n.append(res['numeros'][0])
     list_mu.append(res['energia_quimica'][0])
@@ -64,7 +66,7 @@ def obter_dado_J_e_N(Temperaturas, n_med_esp, J, n, D, Potencial_Quimico, B, K, 
   }
   
  
-def obter_dado_T_e_N(Energias_Atracao_J, Temp, Numero_Med_Esp, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M):  
+def obter_dado_T_e_N(Energias_Atracao_J, Temp, Numero_Med_Esp, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M, aleatoriedade, v):  
   inicio = tempo()
   
   list_d = []
@@ -100,7 +102,7 @@ def obter_dado_T_e_N(Energias_Atracao_J, Temp, Numero_Med_Esp, n, D, Potencial_Q
         K.fill(0.0)
         Delta.fill(0.0)
         
-        construir_matriz_B(B, K, Delta, D, n, Potencial_Quimico, Dimensao, Sitios, U, t)  
+        construir_matriz_B(B, K, Delta, D, n, Potencial_Quimico, Dimensao, Sitios, U, t, aleatoriedade, v)  
         
         evals, evecs = linalg.eig(B)
         evecs = evecs.real
@@ -141,7 +143,7 @@ def obter_dado_T_e_N(Energias_Atracao_J, Temp, Numero_Med_Esp, n, D, Potencial_Q
   }
   
 
-def obter_dado_T(Temp, Numeros, Energias_Atracao_J, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M):  
+def obter_dado_T(Temp, Numeros, Energias_Atracao_J, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M, aleatoriedade, v):  
   t0 = tempo()
   
   Z_delta = []
@@ -149,7 +151,7 @@ def obter_dado_T(Temp, Numeros, Energias_Atracao_J, n, D, Potencial_Quimico, B, 
   Z_ener_quim = []
   
   for numero in Numeros:
-    result = obter_dado_T_e_N(Energias_Atracao_J, Temp, numero, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M)
+    result = obter_dado_T_e_N(Energias_Atracao_J, Temp, numero, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M, aleatoriedade, v)
     Z_delta.append(result['deltas'])
     Z_numero.append(result['numeros'])
     Z_ener_quim.append(result['energia_quimica'])
@@ -161,7 +163,7 @@ def obter_dado_T(Temp, Numeros, Energias_Atracao_J, n, D, Potencial_Quimico, B, 
     'tempo': tempo() - t0
   }
 
-def obter_dado_J(J, Numeros, Temperaturas, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M):  
+def obter_dado_J(J, Numeros, Temperaturas, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M, aleatoriedade, v):  
   t0 = tempo()
   
   Z_delta = []
@@ -176,7 +178,7 @@ def obter_dado_J(J, Numeros, Temperaturas, n, D, Potencial_Quimico, B, K, Delta,
     
     for temp in Temperaturas: 
 
-      result = obter_dado_T_e_N([J], temp, numero, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M)
+      result = obter_dado_T_e_N([J], temp, numero, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M, aleatoriedade, v)
       delta.append(result['deltas'][0])
       num.append(result['numeros'][0])
       ener_quim.append(result['energia_quimica'][0])
@@ -192,7 +194,7 @@ def obter_dado_J(J, Numeros, Temperaturas, n, D, Potencial_Quimico, B, K, Delta,
     'tempo': tempo() - t0
   }
   
-def obter_dado_N(Energias_Atracao_J, numero, Temperaturas, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M):  
+def obter_dado_N(Energias_Atracao_J, numero, Temperaturas, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M, aleatoriedade, v):  
   t0 = tempo()
   
   delta = []
@@ -201,7 +203,7 @@ def obter_dado_N(Energias_Atracao_J, numero, Temperaturas, n, D, Potencial_Quimi
 
   for temp in Temperaturas: 
 
-    result = obter_dado_T_e_N(Energias_Atracao_J, temp, numero, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M)
+    result = obter_dado_T_e_N(Energias_Atracao_J, temp, numero, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M, aleatoriedade, v)
     delta.append(result['deltas'][0])
     num.append(result['numeros'][0])
     ener_quim.append(result['energia_quimica'][0])
@@ -217,7 +219,8 @@ def obter_dado_N(Energias_Atracao_J, numero, Temperaturas, n, D, Potencial_Quimi
 
 # Modifica matriz D e n
 @njit()
-def calcular_parametros_occ_delt(f, n, D, evals, evecs, U, Dimensao, Sitios, prom, dif):
+def calcular_parametros_occ_delt(f, n, D, evals, evecs, U, Dimensao, Sitios, prom, dif, desordem=False):
+
   for y in range(Dimensao):
     for x in range(Dimensao):
       
@@ -251,14 +254,17 @@ def calcula_f(f, M, evals, Temp):
     
 
 @njit()
-def construir_matriz_B(B, K, Delta, D, Numero, Potencial_Quimico, Dimensao, Sitios, U, t):
+def construir_matriz_B(B, K, Delta, D, Numero, Potencial_Quimico, Dimensao, Sitios, U, t, aleatoriedade, v):
+  
   # Modificar Matriz K e Delta
   for y in range(Dimensao):
     for x in range(Dimensao):
     
       indice = Dimensao * y + x
       
-      K[indice][indice] = Potencial_Quimico[x][y] + 0.5 * U * Numero[x][y]
+      K[indice][indice]= Potencial_Quimico[x][y] + 0.5 * U * Numero[x][y]
+      if aleatoriedade:
+        K[indice][indice]+=v*(2*(random()-0.5))
       Delta[indice][indice] = D[x][y]
       
       if y < Dimensao - 1:
