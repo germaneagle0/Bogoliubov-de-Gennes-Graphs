@@ -40,8 +40,9 @@ def Perguntas():
             resultado['numero'] = ObterConstante('Número')
         if variavel != 'j':
             resultado['energia_atrativa'] = ObterConstante('Energia Atrativa')
-        
-        
+        if variavel != 'a':
+            resultado['aleatoridade'] = ObterAleatoridade()
+            
     else:
         constante = ObterValorFixo()
         resultado['constante'] = constante
@@ -50,12 +51,12 @@ def Perguntas():
         resultado[nome_constante] = ObterConstante(nome_constante)
         
         if constante != 't':
-            resultado['intervalo_temperatura'] = ObterIntervalo('Temperatura')
+            resultado['intervalo_temperatura'] = ObterIntervalo('t')
         if constante != 'n':
-            resultado['intervalo_numero'] = ObterIntervalo('Número')
+            resultado['intervalo_numero'] = ObterIntervalo('n')
         if constante != 'j':
-            resultado['intervalo_energia_atrativa'] = ObterIntervalo('Energia Atrativa')
-    
+            resultado['intervalo_energia_atrativa'] = ObterIntervalo('j')
+ 
         resultado['aleatoridade'] = ObterAleatoridade()
     
     
@@ -116,11 +117,15 @@ def ObterAleatoridade():
             
             if aleatoridade in ['s', 'n']:
                 if aleatoridade == 's':
-                    valor = input('Qual é a constante de proporcionalidade para aleatoridade? (default 1 por exemplo)\n\n=> ')
+                    aleatoridade = True
+                    valor = input('\nQual é a constante de proporcionalidade para aleatoridade? (default 1 por exemplo)\n\n=> ')
                     try:
                         valor = int(valor)
                     except:
                         valor = 1
+                    break
+                aleatoridade = False
+                valor = 1
                 break
             raise
             
@@ -131,7 +136,7 @@ def ObterAleatoridade():
             PrintAviso('Por favor escreva s ou n!\n')
     
     LimparTerminal(printar=False)
-    return {aleatoridade: aleatoridade, valor: valor}
+    return {'aleatoridade': aleatoridade, 'valor': valor}
 
 @DecoradorLembrete
 def ObterVariavel():
@@ -176,7 +181,6 @@ def ObterValorFixo():
 def ObterIntervalo(variavel):
     
     nome_variavel = 'Temperatura' if variavel == 't' else ('Número' if variavel == 'n' else ('Energia Atrativa' if variavel == 'j' else 'Aleatoriedade'))
-    
     while (True):
         try:
             inicial = float(input(f'Qual será o valor inicial da {nome_variavel}? (em Kelvin)\n\n=> '))

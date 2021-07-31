@@ -83,7 +83,7 @@ def main():
       X, Y = np.meshgrid(dados['intervalo_temperatura'], dados['intervalo_numero'])
       resultado = obter_dado_J(dados['Energia Atrativa'], dados['intervalo_numero'], dados['intervalo_temperatura'], n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M, dados['aleatoridade']['aleatoridade'], dados['aleatoridade']['valor'])
       plot3D('T', X, 'n', Y, 'Δ', np.array(resultado['Delta']), f' com J = {dados["Energia Atrativa"]}eV', show=dados['display'])
-      plot3D('T', X, 'n', Y, 'µ', np.array(resultado['Energia_Quimica']), f' com J = {dados["Energia Atrativa"]}', show=dados['display'])
+      plot3D('T', X, 'n', Y, 'µ', np.array(resultado['Energia_Quimica']), f' com J = {dados["Energia Atrativa"]}eV', show=dados['display'])
       # Para verificar precisão pode tambem plotar resultado['numeros'] é pra ser um plano, mas na pratica a conta se baseia em aproximar ao maximo dele
     
     else:

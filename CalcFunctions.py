@@ -204,9 +204,9 @@ def obter_dado_N(Energias_Atracao_J, numero, Temperaturas, n, D, Potencial_Quimi
   for temp in Temperaturas: 
 
     result = obter_dado_T_e_N(Energias_Atracao_J, temp, numero, n, D, Potencial_Quimico, B, K, Delta, Dimensao, Sitios, f, M, aleatoriedade, v)
-    delta.append(result['deltas'][0])
-    num.append(result['numeros'][0])
-    ener_quim.append(result['energia_quimica'][0])
+    delta.append(result['deltas'])
+    num.append(result['numeros'])
+    ener_quim.append(result['energia_quimica'])
   
     
   return {
